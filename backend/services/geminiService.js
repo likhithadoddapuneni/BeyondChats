@@ -1,4 +1,3 @@
-
 const axios = require('axios');
 
 class GeminiService {
@@ -60,36 +59,83 @@ Return ONLY valid JSON array, no additional text.`;
 
   parseQuizResponse(text, quizType) {
     try {
-      // Remove all markdown code block markers and trim
-      console.log('Raw response text:', text);
-      let cleanText = text.replace(/```[a-zA-Z]*\n?|```/g, '').trim();
+      console.log('Raw response text:', text.substring(0, 200) + '...');
+      
+      // Step 1: Remove markdown code blocks
+      let cleanText = text
+        .replace(/```/g, '')
+        .trim();
 
-      // Try to parse directly if it looks like a JSON array
-      if (cleanText.startsWith('[') && cleanText.endsWith(']')) {
-        const questions = JSON.parse(cleanText);
-        return questions.map(q => ({
-          question: q.question,
-          options: quizType === 'MCQ' ? q.options : null,
-          correctAnswer: q.correctAnswer,
-          explanation: q.explanation,
-          topic: q.topic || 'General'
-        }));
+      // Step 2: Find the JSON array start and end
+      const startIndex = cleanText.indexOf('[');
+      const endIndex = cleanText.lastIndexOf(']');
+
+      if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+        throw new Error('No valid JSON array found in response');
       }
 
-      // Otherwise, extract the first JSON array from the response
-      const match = cleanText.match(/\[\s*{[\s\S]*?}\s*\]/);
-      if (!match) throw new Error('No JSON array found in response');
-      const jsonArray = match[0];
-      const questions = JSON.parse(jsonArray);
-      return questions.map(q => ({
-        question: q.question,
-        options: quizType === 'MCQ' ? q.options : null,
-        correctAnswer: q.correctAnswer,
-        explanation: q.explanation,
-        topic: q.topic || 'General'
-      }));
+      // Step 3: Extract JSON substring
+      let jsonText = cleanText.substring(startIndex, endIndex + 1);
+
+      // Step 4: Clean up common JSON issues
+      jsonText = jsonText
+        .replace(/,(\s*[\]}])/g, '$1')  // Remove trailing commas before ] or }
+        .replace(/\n/g, ' ')             // Remove newlines
+        .replace(/\s{2,}/g, ' ')         // Collapse multiple spaces
+        .trim();
+
+      // Step 5: Try to parse - if it fails, try to fix the JSON
+      let questions;
+      try {
+        questions = JSON.parse(jsonText);
+      } catch (parseError) {
+        console.log('Initial parse failed, attempting to fix JSON...');
+        
+        // Count and fix unbalanced braces/brackets
+        const openBraces = (jsonText.match(/{/g) || []).length;
+        const closeBraces = (jsonText.match(/}/g) || []).length;
+        const openBrackets = (jsonText.match(/\[/g) || []).length;
+        const closeBrackets = (jsonText.match(/]/g) || []).length;
+
+        // Add missing closing braces
+        for (let i = 0; i < openBraces - closeBraces; i++) {
+          jsonText += '}';
+        }
+        // Add missing closing brackets
+        for (let i = 0; i < openBrackets - closeBrackets; i++) {
+          jsonText += ']';
+        }
+
+        // Try parsing again
+        questions = JSON.parse(jsonText);
+      }
+
+      // Step 6: Validate and return normalized questions
+      if (!Array.isArray(questions) || questions.length === 0) {
+        throw new Error('Parsed result is not a valid array');
+      }
+
+      // Filter out incomplete questions and normalize
+      const validQuestions = questions
+        .filter(q => q.question && q.correctAnswer)
+        .map(q => ({
+          question: q.question,
+          options: quizType === 'MCQ' ? (q.options || []) : null,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation || 'No explanation provided',
+          topic: q.topic || 'General'
+        }));
+
+      if (validQuestions.length === 0) {
+        throw new Error('No valid questions found after filtering');
+      }
+
+      console.log(`Successfully parsed ${validQuestions.length} questions`);
+      return validQuestions;
+
     } catch (error) {
-      console.error('Parse error:', error);
+      console.error('Parse error:', error.message);
+      console.error('Failed text snippet:', text.substring(0, 300));
       throw new Error('Failed to parse quiz questions');
     }
   }

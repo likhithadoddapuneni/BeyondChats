@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -10,12 +11,18 @@ const progressRoutes = require('./routes/progressRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const youtubeRoutes = require('./routes/youtubeRoutes');
 
-
 const app = express();
 
 // Middleware
 app.use(cors());
-app.options('*', cors()); // Handle preflight requests for all routes
+// Changed from app.options('*', cors()) to proper middleware
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return cors()(req, res, next);
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -5,10 +5,12 @@ const PdfSchema = new mongoose.Schema({
   originalname: { type: String, required: true },
   uploadDate: { type: Date, default: Date.now },
   pages: { type: Number, default: 0 },
-  textContent: { type: String }, // Store extracted text for RAG
+  textContent: { type: String },
   fileSize: { type: Number },
   chunkingStatus: { type: String, enum: ['pending', 'done', 'error'], default: 'pending' },
-  chunksCreated: { type: Number, default: 0 }
+  chunksCreated: { type: Number, default: 0 },
+  cachedVideos: { type: Array, default: [] },
+  lastVideosFetched: { type: Date }
 });
 
 const QuizAttemptSchema = new mongoose.Schema({
@@ -41,6 +43,8 @@ const UserProgressSchema = new mongoose.Schema({
 const ChatHistorySchema = new mongoose.Schema({
   userId: { type: String, required: true },
   pdfId: { type: mongoose.Schema.Types.ObjectId, ref: 'Pdf' },
+  sessionId: { type: String, required: false, index: true }, // Made optional
+  sessionTitle: { type: String, default: '' },
   messages: [{
     role: { type: String, enum: ['user', 'assistant'] },
     content: String,
@@ -50,17 +54,19 @@ const ChatHistorySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Add compound index for efficient queries
+ChatHistorySchema.index({ userId: 1, pdfId: 1, sessionId: 1 });
+
 const PdfChunkSchema = new mongoose.Schema({
   pdfId: { type: mongoose.Schema.Types.ObjectId, ref: 'Pdf', required: true },
   pageNumber: { type: Number },
   chunkIndex: { type: Number },
   text: { type: String, required: true },
-  embedding: [Number], // Vector embedding for similarity search
+  embedding: [Number],
   createdAt: { type: Date, default: Date.now }
 });
 
 const PdfChunk = mongoose.model('PdfChunk', PdfChunkSchema);
-
 const Pdf = mongoose.model('Pdf', PdfSchema);
 const QuizAttempt = mongoose.model('QuizAttempt', QuizAttemptSchema);
 const UserProgress = mongoose.model('UserProgress', UserProgressSchema);

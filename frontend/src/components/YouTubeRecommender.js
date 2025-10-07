@@ -1,28 +1,46 @@
-import React, { useState, useEffect } from 'react';
+
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const API_URL = 'http://localhost:5001/api';
 
-export default function YouTubeRecommender({ pdfId }) {
-  const [videos, setVideos] = useState([]);
+export default function YouTubeRecommender({ pdfId, cachedVideos, onCacheVideos, onRefresh }) {
+  const [videos, setVideos] = useState(cachedVideos || []);
   const [loading, setLoading] = useState(false);
 
+  // Load from cache or fetch if not present
   useEffect(() => {
-    if (pdfId) {
+    if (!pdfId) return;
+    if (cachedVideos && cachedVideos.length > 0) {
+      setVideos(cachedVideos);
+      setLoading(false);
+    } else {
       fetchVideos();
     }
-  }, [pdfId]);
+    // eslint-disable-next-line
+  }, [pdfId, cachedVideos]);
 
-  const fetchVideos = async () => {
+  // Fetch videos from API and cache them
+  const fetchVideos = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API_URL}/youtube/recommend/${pdfId}`);
+      const url = forceRefresh
+        ? `${API_URL}/youtube/recommend/${pdfId}?refresh=true`
+        : `${API_URL}/youtube/recommend/${pdfId}`;
+      const { data } = await axios.get(url);
       setVideos(data.videos);
+      if (onCacheVideos) onCacheVideos(data.videos);
     } catch (error) {
       console.error('Error fetching videos:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle refresh button click
+  const handleRefresh = () => {
+    if (onRefresh) onRefresh();
+    fetchVideos(true);
   };
 
   if (!pdfId) {
@@ -34,18 +52,34 @@ export default function YouTubeRecommender({ pdfId }) {
     );
   }
 
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>⏳ Loading videos...</div>;
-  }
-
   return (
     <div className="youtube-recommender">
-      <h3>🎥 Recommended Videos</h3>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h3 style={{ margin: 0 }}>🎥 Recommended Videos</h3>
+        <button
+          onClick={handleRefresh}
+          style={{
+            background: '#e6f7ff',
+            border: 'none',
+            borderRadius: '6px',
+            padding: '0.5rem 1rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontSize: '1rem',
+            marginLeft: '1rem'
+          }}
+          disabled={loading}
+        >
+          🔄 Refresh
+        </button>
+      </div>
       <p style={{ color: '#666', marginBottom: '1rem' }}>
         Educational videos related to your coursebook
       </p>
 
-      {videos.length === 0 ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '2rem' }}>⏳ Loading videos...</div>
+      ) : videos.length === 0 ? (
         <div style={{ color: '#999', textAlign: 'center', padding: '2rem' }}>
           <span>No videos found for this PDF.</span>
         </div>
