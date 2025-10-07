@@ -45,57 +45,63 @@ export default function YouTubeRecommender({ pdfId }) {
         Educational videos related to your coursebook
       </p>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: '1rem',
-        marginTop: '1rem'
-      }}>
-        {videos.map((video, i) => (
-          <div key={i} style={{
-            background: 'white',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            transition: 'transform 0.3s ease',
-            cursor: 'pointer'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          onClick={() => window.open(video.url, '_blank')}
-          >
-            <img 
-              src={video.thumbnail} 
-              alt={video.title}
-              style={{ width: '100%', height: '180px', objectFit: 'cover' }}
-            />
-            <div style={{ padding: '1rem' }}>
-              <h4 style={{ 
-                fontSize: '0.95rem', 
-                marginBottom: '0.5rem',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical'
-              }}>
-                {video.title}
-              </h4>
-              <p style={{
-                fontSize: '0.85rem',
-                color: '#666',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical'
-              }}>
-                {video.description}
-              </p>
+      {videos.length === 0 ? (
+        <div style={{ color: '#999', textAlign: 'center', padding: '2rem' }}>
+          <span>No videos found for this PDF.</span>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '1rem',
+          marginTop: '1rem'
+        }}>
+          {videos.map((video, i) => (
+            <div key={i} style={{
+              background: 'white',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              transition: 'transform 0.3s ease',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            onClick={() => window.open(video.url, '_blank')}
+            >
+              <img 
+                src={video.thumbnail} 
+                alt={video.title}
+                style={{ width: '100%', height: '180px', objectFit: 'cover' }}
+              />
+              <div style={{ padding: '1rem' }}>
+                <h4 style={{ 
+                  fontSize: '0.95rem', 
+                  marginBottom: '0.5rem',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical'
+                }}>
+                  {video.title}
+                </h4>
+                <p style={{
+                  fontSize: '0.85rem',
+                  color: '#666',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical'
+                }}>
+                  {video.description}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

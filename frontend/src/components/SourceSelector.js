@@ -49,22 +49,31 @@ export default function SourceSelector({ onSelectPdf, selectedPdfId }) {
     }
   };
 
+  const handleDelete = async (pdfId) => {
+    if (!window.confirm('Are you sure you want to delete this PDF?')) return;
+    try {
+      await axios.delete(`${API_URL}/pdfs/${pdfId}`);
+      setMessage('PDF deleted successfully.');
+      fetchPdfs();
+      if (selectedPdfId === pdfId) onSelectPdf('');
+    } catch (error) {
+      setMessage('❌ Delete failed: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
   return (
     <div className="source-selector">
       <h3>📁 Select PDF Source</h3>
-      
-      <select 
-        value={selectedPdfId} 
-        onChange={(e) => onSelectPdf(e.target.value)}
-        style={{ marginTop: '1rem', marginBottom: '1rem' }}
-      >
-        <option value="">-- Select a PDF --</option>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {pdfs.map((pdf) => (
-          <option key={pdf._id} value={pdf._id}>
-            {pdf.originalname} ({pdf.pages} pages)
-          </option>
+          <li key={pdf._id} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', background: selectedPdfId === pdf._id ? '#e6f7ff' : 'white', borderRadius: '6px', padding: '0.5rem 0.75rem' }}>
+            <span style={{ flex: 1, cursor: 'pointer' }} onClick={() => onSelectPdf(pdf._id)}>
+              {pdf.originalname} ({pdf.pages} pages)
+            </span>
+            <button onClick={() => handleDelete(pdf._id)} style={{ marginLeft: '0.5rem', background: '#ff4d4f', color: 'white', border: 'none', borderRadius: '4px', padding: '0.25rem 0.75rem', cursor: 'pointer' }}>🗑️ Delete</button>
+          </li>
         ))}
-      </select>
+      </ul>
 
       <hr style={{ margin: '1.5rem 0', border: '1px solid #eee' }} />
 

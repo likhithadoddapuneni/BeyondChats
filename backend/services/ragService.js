@@ -2,22 +2,23 @@ const { PdfChunk } = require('../models/models');
 
 class RAGService {
   // Chunk PDF text into smaller pieces
-  *chunkTextGenerator(text, chunkSize = 3000, overlap = 200) {
+  *chunkTextGenerator(text, chunkSize = 10000, overlap = 100) {
     let start = 0;
     while (start < text.length) {
       const end = Math.min(start + chunkSize, text.length);
       yield text.slice(start, end);
+      if (end === text.length) break;
       start = end - overlap;
     }
   }
 
   // Store chunks in database
-  async storeChunks(pdfId, text, pageNumber = 1, chunkSize = 3000) {
+  async storeChunks(pdfId, text, pageNumber = 1, chunkSize = 10000) {
     const BATCH_SIZE = 100;
     let totalInserted = 0;
     let batch = [];
     let chunkIndex = 0;
-    for (const chunk of this.chunkTextGenerator(text, chunkSize, 200)) {
+    for (const chunk of this.chunkTextGenerator(text, chunkSize, 100)) {
       batch.push({
         pdfId,
         pageNumber,
@@ -29,17 +30,14 @@ class RAGService {
       if (batch.length === BATCH_SIZE) {
         await PdfChunk.insertMany(batch);
         totalInserted += batch.length;
-        if ((Math.ceil(chunkIndex/BATCH_SIZE) % 100) === 0) {
-          console.log(`Inserted batch ${Math.ceil(chunkIndex/BATCH_SIZE)}: ${batch.length} chunks`);
-        }
         batch = [];
       }
     }
     if (batch.length > 0) {
       await PdfChunk.insertMany(batch);
       totalInserted += batch.length;
-      console.log(`Inserted final batch: ${batch.length} chunks`);
     }
+    console.log(`Total chunks created for PDF ${pdfId}: ${totalInserted}`);
     return totalInserted;
   }
 

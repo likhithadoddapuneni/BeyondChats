@@ -47,6 +47,13 @@ function App() {
               >
                 📊 Progress
               </button>
+              <button 
+  className={activeTab === 'youtube' ? 'active' : ''}
+  onClick={() => setActiveTab('youtube')}
+>
+  🎥 Videos
+</button>
+
             </div>
           </div>
 
@@ -71,6 +78,10 @@ function App() {
               {activeTab === 'progress' && (
                 <ProgressDashboard userId={userId} />
               )}
+              {activeTab === 'youtube' && (
+  <YouTubeRecommender pdfId={selectedPdfId} />
+)}
+
             </div>
           </div>
         </div>
