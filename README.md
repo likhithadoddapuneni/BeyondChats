@@ -47,8 +47,6 @@ This repository contains a fully functional, responsive web application designed
 git clone https://github.com/likhithadoddapuneni/BeyondChats.git
 cd BeyondChats
 
-text
-
 **2. Backend Setup**
 
 Navigate to the backend folder:
@@ -56,15 +54,11 @@ Navigate to the backend folder:
 cd backend
 npm install
 
-text
-
 Create a `.env` file (if required) and configure it.
 
 Start the backend server:
 
 npm start
-
-text
 
 **3. Frontend Setup**
 
@@ -73,49 +67,43 @@ Open a new terminal and navigate to the frontend folder:
 cd frontend
 npm install
 
-text
-
 Start the development server:
 
 npm start
 
-text
-
 ### Deployment Details
 
 - **Backend**: Deployed on Render
-- **Frontend**: Deployed on Vercel at [https://beyond-chats-hazel.vercel.app/](https://beyond-chats-hazel.vercel.app/)
+- **Frontend**: Deployed on Vercel at https://beyond-chats-hazel.vercel.app/
 
 ## Project Structure
 
 ├── backend
-│ ├── models
-│ │ └── models.js
-│ ├── routes
-│ │ ├── chatRoutes.js
-│ │ ├── pdfRoutes.js
-│ │ ├── progressRoutes.js
-│ │ └── quizRoutes.js
-│ ├── server.js
-│ └── package.json
+│   ├── models
+│   │   └── models.js
+│   ├── routes
+│   │   ├── chatRoutes.js
+│   │   ├── pdfRoutes.js
+│   │   ├── progressRoutes.js
+│   │   └── quizRoutes.js
+│   ├── server.js
+│   └── package.json
 └── frontend
-├── public
-│ └── index.html
-├── src
-│ ├── App.js
-│ ├── App.css
-│ ├── index.js
-│ └── components
-│ ├── ChatUI.js
-│ ├── Layout.js
-│ ├── PdfViewer.js
-│ ├── ProgressDashboard.js
-│ ├── QuizGenerator.js
-│ ├── SourceSelector.js
-│ └── YouTubeRecommender.js
-└── package.json
-
-text
+    ├── public
+    │   └── index.html
+    ├── src
+    │   ├── App.js
+    │   ├── App.css
+    │   ├── index.js
+    │   └── components
+    │       ├── ChatUI.js
+    │       ├── Layout.js
+    │       ├── PdfViewer.js
+    │       ├── ProgressDashboard.js
+    │       ├── QuizGenerator.js
+    │       ├── SourceSelector.js
+    │       └── YouTubeRecommender.js
+    └── package.json
 
 ## How It Was Built
 
