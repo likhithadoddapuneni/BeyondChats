@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import SourceSelector from './components/SourceSelector';
 import PdfViewer from './components/PdfViewer';
@@ -9,12 +9,26 @@ import YouTubeRecommender from './components/YouTubeRecommender';
 
 function App() {
   const [selectedPdfId, setSelectedPdfId] = useState('');
-  const [userId] = useState('user_' + Date.now());
+  // FIX: Store userId in localStorage to persist across refreshes
+  const [userId] = useState(() => {
+    let storedUserId = localStorage.getItem('beyondchats_userId');
+    if (!storedUserId) {
+      storedUserId = 'user_' + Date.now();
+      localStorage.setItem('beyondchats_userId', storedUserId);
+    }
+    return storedUserId;
+  });
+  
   const [activeTab, setActiveTab] = useState('upload');
   const [videoCache, setVideoCache] = useState({});
   const [pdfs, setPdfs] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [pdfToDelete, setPdfToDelete] = useState(null);
+
+  // Log userId for debugging
+  useEffect(() => {
+    console.log('Current userId:', userId);
+  }, [userId]);
 
   const handleCacheVideos = (pdfId, videos) => {
     setVideoCache((prev) => ({ ...prev, [pdfId]: videos }));
