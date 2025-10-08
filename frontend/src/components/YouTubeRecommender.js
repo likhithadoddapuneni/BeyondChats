@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'https://beyondchats-5ojh.onrender.com/api';
 
 export default function YouTubeRecommender({ pdfId, cachedVideos, onCacheVideos, onRefresh }) {
   const [videos, setVideos] = useState(cachedVideos || []);

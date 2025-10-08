@@ -6,7 +6,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 // Set up the worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'https://beyondchats-5ojh.onrender.com/api';
 
 export default function PdfViewer({ pdfId }) {
   const [numPages, setNumPages] = useState(null);
