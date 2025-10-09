@@ -77,7 +77,7 @@ npm start
 - **Frontend**: Deployed on Vercel at https://beyond-chats-hazel.vercel.app/
 
 ## Project Structure
-
+```
 ├── backend
 │   ├── models
 │   │   └── models.js
@@ -104,7 +104,7 @@ npm start
     │       ├── SourceSelector.js
     │       └── YouTubeRecommender.js
     └── package.json
-
+```
 ## How It Was Built
 
 - **Backend**: Built using Node.js, Express, and Mongoose for MongoDB. Implemented endpoints to support multi-session chat functionality with unique session IDs (using the uuid package)
@@ -143,3 +143,4 @@ All code written is my property, and the submission reflects my best efforts in 
 ---
 
 **Good luck and Happy Revising!**
+
